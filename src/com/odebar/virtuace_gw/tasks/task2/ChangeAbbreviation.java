@@ -3,8 +3,11 @@ package com.odebar.virtuace_gw.tasks.task2;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChangeAbbreviation {
+    private static final String PATTERN = "(Ave\\.|Ave\\b|Str\\.|Str\\b|St\\.|St\\b)";
     private static final Map<String, String> FULL_FORM_MAP = new HashMap<>();
 
     static {
@@ -17,22 +20,27 @@ public class ChangeAbbreviation {
     }
 
     public static void main(String[] args) {
-        String[] inputData = {
+        String[] abbrAddress = {
                 "555 Straight Stave Ave, San Francisco, CA 94104",
-                "444 Ave Maria Stairway St., San Francisco, CA 94104",
+                "444 Ave. Maria Stairway St., San Francisco, CA 94104",
                 "9032 Flave Steep Str, San Francisco, CA 94104"
         };
-        for (String address : inputData) {
-            String fullAddress = convertAddress(address);
+
+        for (String address : abbrAddress) {
+            String fullAddress = convertAbbreviationWithRegExp(address);
             System.out.println(fullAddress);
         }
+
     }
 
-    private static String convertAddress(String address) {
-        String fullAddress = address;
-        for (Map.Entry<String, String> entry : FULL_FORM_MAP.entrySet()) {
-            fullAddress = fullAddress.replace(entry.getKey(), entry.getValue());
+    private static String convertAbbreviationWithRegExp(String address) {
+        Pattern pattern = Pattern.compile(PATTERN);
+        Matcher matcher = pattern.matcher(address);
+        String key;
+        while (matcher.find()) {
+            key = matcher.group();
+            address = address.replace(key, FULL_FORM_MAP.get(key));
         }
-        return fullAddress;
+        return address;
     }
 }
